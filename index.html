@@ -1,0 +1,1187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Respond to Priya's Find — Auditing Simulation</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --yellow: #ffff00;
+      --black: #000000;
+      --white: #ffffff;
+      --bg: #FAFAFA;
+      --lime: #65e515;
+      --lime-bg: #f2fde8;
+      --amber-bg: #fffdf0;
+      --gray-text: #262626;
+      --gray-muted: #555555;
+      --gray-border: #e0e0e0;
+      --radius-lg: 22px;
+      --radius-md: 16px;
+      --radius-sm: 10px;
+      --shadow-card: 0 10px 28px rgba(0, 0, 0, 0.07), 0 2px 6px rgba(0, 0, 0, 0.04);
+      --shadow-btn: 0 4px 0 #000000;
+      --shadow-btn-hover: 0 6px 0 #000000;
+      --shadow-btn-active: 0 1px 0 #000000;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: var(--bg);
+      color: var(--black);
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+      padding: 16px 12px 64px;
+    }
+
+    .sim-container {
+      max-width: 760px;
+      margin: 0 auto;
+    }
+
+    /* Header & Progress Bar */
+    .top-bar {
+      display: flex;
+       flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 18px;
+      padding: 12px 16px;
+      background: var(--white);
+      border: 2px solid var(--black);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-card);
+    }
+
+    .brand-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--yellow);
+      border: 2px solid var(--black);
+      padding: 5px 12px;
+      border-radius: 999px;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 800;
+      font-size: 0.78rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .progress-steps {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .step-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 34px;
+      height: 30px;
+      padding: 0 10px;
+      border-radius: 999px;
+      border: 2px solid var(--black);
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 800;
+      background: var(--white);
+      color: var(--black);
+      opacity: 0.4;
+      transition: all 0.25s ease;
+    }
+
+    .step-pill.active {
+      background: var(--yellow);
+      opacity: 1;
+      transform: scale(1.05);
+    }
+
+    .step-pill.completed {
+      background: var(--black);
+      color: var(--yellow);
+      opacity: 1;
+    }
+
+    .step-pill.completed.optimal-dot {
+      border-color: var(--black);
+    }
+
+    /* Cards */
+    .card {
+      background: var(--white);
+      border: 2px solid var(--black);
+      border-radius: var(--radius-lg);
+      padding: 24px 20px;
+      margin-bottom: 22px;
+      box-shadow: var(--shadow-card);
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+
+    @media (min-width: 540px) {
+      body {
+        padding: 28px 20px 80px;
+      }
+      .card {
+        padding: 32px 30px;
+      }
+    }
+
+    /* Case Setup Card */
+    .hero-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+
+    .role-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--black);
+      margin-bottom: 6px;
+    }
+
+    h1 {
+      font-family: 'Montserrat', sans-serif;
+      font-size: clamp(1.45rem, 4vw, 2rem);
+      font-weight: 900;
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+    }
+
+    .title-highlight {
+      background: var(--yellow);
+      padding: 0 6px;
+      border-radius: 6px;
+      box-decoration-break: clone;
+      -webkit-box-decoration-break: clone;
+    }
+
+    .scenario-lead {
+      font-size: 1rem;
+      color: var(--gray-text);
+      margin-bottom: 20px;
+    }
+
+    .scenario-lead strong {
+      font-weight: 700;
+      color: var(--black);
+    }
+
+    /* Metrics Grid */
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    @media (min-width: 560px) {
+      .metrics-grid {
+        grid-template-columns: repeat(4, 1fr);
+      }
+    }
+
+    .metric-box {
+      background: var(--bg);
+      border: 2px solid var(--black);
+      border-radius: var(--radius-md);
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 6px;
+    }
+
+    .metric-box.highlight-yellow {
+      background: var(--yellow);
+    }
+
+    .metric-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+    }
+
+    .metric-value {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 900;
+      font-size: 1.25rem;
+      line-height: 1.1;
+    }
+
+    .metric-label {
+      font-size: 0.78rem;
+      font-weight: 600;
+      line-height: 1.25;
+      color: var(--black);
+    }
+
+    .finding-callout {
+      background: var(--amber-bg);
+      border: 2px solid var(--black);
+      border-left: 8px solid var(--black);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+      font-size: 0.95rem;
+    }
+
+    .finding-callout svg {
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    /* Decision Cards */
+    .decision-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .decision-number {
+      background: var(--yellow);
+      border: 2px solid var(--black);
+      border-radius: 8px;
+      padding: 4px 10px;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 800;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .decision-question {
+      font-family: 'Montserrat', sans-serif;
+      font-size: clamp(1.15rem, 3vw, 1.4rem);
+      font-weight: 800;
+      line-height: 1.25;
+      margin-bottom: 8px;
+    }
+
+    .decision-subtext {
+      font-size: 0.88rem;
+      color: var(--gray-muted);
+      font-weight: 500;
+      margin-bottom: 18px;
+    }
+
+    .options-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .option-btn {
+      width: 100%;
+      text-align: left;
+      background: var(--white);
+      color: var(--black);
+      border: 2px solid var(--black);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      font-family: inherit;
+      font-size: 0.96rem;
+      font-weight: 600;
+      line-height: 1.45;
+      cursor: pointer;
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      box-shadow: var(--shadow-btn);
+      transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+      min-height: 64px;
+    }
+
+    .option-btn:hover:not(:disabled) {
+      background: #ffffd8;
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-btn-hover);
+    }
+
+    .option-btn:active:not(:disabled) {
+      transform: translateY(2px);
+      box-shadow: var(--shadow-btn-active);
+    }
+
+    .option-btn:focus-visible {
+      outline: 3px solid var(--black);
+      outline-offset: 3px;
+    }
+
+    .option-letter {
+      flex-shrink: 0;
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      border: 2px solid var(--black);
+      background: var(--yellow);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 900;
+      font-size: 0.95rem;
+      margin-top: 1px;
+    }
+
+    .option-text {
+      flex: 1;
+    }
+
+    /* States after selection */
+    .option-btn:disabled {
+      cursor: default;
+    }
+
+    .option-btn.dimmed {
+      opacity: 0.5;
+      box-shadow: none;
+      background: #f5f5f5;
+    }
+
+    .option-btn.selected-optimal {
+      background: var(--lime-bg);
+      border-width: 2.5px;
+      box-shadow: 0 4px 0 var(--black);
+    }
+
+    .option-btn.selected-optimal .option-letter {
+      background: var(--lime);
+    }
+
+    .option-btn.selected-suboptimal {
+      background: var(--yellow);
+      border-width: 2.5px;
+      box-shadow: 0 4px 0 var(--black);
+    }
+
+    .option-btn.selected-suboptimal .option-letter {
+      background: var(--black);
+      color: var(--yellow);
+    }
+
+    /* Gamified Micro-Animations */
+    @keyframes popZoom {
+      0% { transform: scale(1); }
+      40% { transform: scale(1.035); }
+      75% { transform: scale(0.99); }
+      100% { transform: scale(1); }
+    }
+
+    @keyframes wrongShake {
+      0%, 100% { transform: translateX(0); }
+      20% { transform: translateX(-8px); }
+      40% { transform: translateX(8px); }
+      60% { transform: translateX(-5px); }
+      80% { transform: translateX(5px); }
+    }
+
+    @keyframes slideFadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(14px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .anim-pop {
+      animation: popZoom 0.42s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .anim-shake {
+      animation: wrongShake 0.42s ease-in-out;
+    }
+
+    .anim-appear {
+      animation: slideFadeIn 0.35s ease-out forwards;
+    }
+
+    /* Feedback Box */
+    .feedback-panel {
+      margin-top: 18px;
+      border: 2px solid var(--black);
+      border-radius: var(--radius-md);
+      padding: 18px;
+      background: var(--bg);
+      animation: slideFadeIn 0.3s ease-out forwards;
+    }
+
+    .feedback-panel.is-optimal {
+      background: var(--lime-bg);
+    }
+
+    .feedback-panel.is-suboptimal {
+      background: var(--amber-bg);
+    }
+
+    .feedback-badge-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 800;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 2px solid var(--black);
+      font-size: 0.78rem;
+      background: var(--yellow);
+    }
+
+    .status-pill.pill-lime {
+      background: var(--lime);
+    }
+
+    .feedback-body {
+      font-size: 0.98rem;
+      font-weight: 600;
+      color: var(--black);
+      margin-bottom: 16px;
+    }
+
+    .next-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      width: 100%;
+      min-height: 52px;
+      background: var(--yellow);
+      color: var(--black);
+      border: 2px solid var(--black);
+      border-radius: var(--radius-sm);
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 800;
+      font-size: 0.95rem;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      cursor: pointer;
+      box-shadow: var(--shadow-btn);
+      transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+      padding: 12px 20px;
+    }
+
+    @media (min-width: 480px) {
+      .next-btn {
+        width: auto;
+      }
+    }
+
+    .next-btn:hover {
+      background: #f2f200;
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-btn-hover);
+    }
+
+    .next-btn:active {
+      transform: translateY(2px);
+      box-shadow: var(--shadow-btn-active);
+    }
+
+    /* Debrief Section */
+    .debrief-card {
+      border-width: 3px;
+    }
+
+    .score-banner {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      background: var(--yellow);
+      border: 2px solid var(--black);
+      border-radius: var(--radius-md);
+      padding: 16px 20px;
+      margin: 18px 0 24px;
+    }
+
+    .score-title {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 900;
+      font-size: 1.15rem;
+    }
+
+    .score-pill {
+      background: var(--black);
+      color: var(--yellow);
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 800;
+      font-size: 0.9rem;
+      padding: 6px 14px;
+      border-radius: 999px;
+    }
+
+    .section-label {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .recap-list {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      margin-bottom: 28px;
+    }
+
+    .recap-item {
+      border: 2px solid var(--black);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      background: var(--bg);
+    }
+
+    .recap-item.recap-optimal {
+      background: var(--lime-bg);
+    }
+
+    .recap-item-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 8px;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 800;
+      font-size: 0.82rem;
+      text-transform: uppercase;
+    }
+
+    .recap-choice {
+      font-weight: 700;
+      font-size: 0.96rem;
+      margin-bottom: 6px;
+    }
+
+    .recap-feedback {
+      font-size: 0.9rem;
+      color: var(--gray-text);
+    }
+
+    .recap-better-note {
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px dashed var(--black);
+      font-size: 0.86rem;
+      font-weight: 600;
+    }
+
+    /* Takeaways Grid */
+    .takeaways-list {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    @media (min-width: 600px) {
+      .takeaways-list {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    .takeaway-box {
+      background: var(--white);
+      border: 2px solid var(--black);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .takeaway-num {
+      width: 30px;
+      height: 30px;
+      background: var(--yellow);
+      border: 2px solid var(--black);
+      border-radius: 8px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 900;
+      font-size: 0.85rem;
+    }
+
+    .takeaway-title {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 800;
+      font-size: 0.95rem;
+      line-height: 1.3;
+    }
+
+    .takeaway-desc {
+      font-size: 0.84rem;
+      color: var(--gray-text);
+    }
+
+    /* Closing Hook */
+    .module-hook {
+      background: var(--black);
+      color: var(--white);
+      border: 2px solid var(--black);
+      border-radius: var(--radius-md);
+      padding: 20px;
+      margin-bottom: 22px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .module-hook-icon {
+      flex-shrink: 0;
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: var(--yellow);
+      color: var(--black);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .module-hook-text {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 800;
+      font-size: 1rem;
+      line-height: 1.4;
+    }
+
+    .module-hook-text span {
+      color: var(--yellow);
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* Minimalist Line Art SVG helper */
+    .icon-svg {
+      width: 22px;
+      height: 22px;
+      stroke: var(--black);
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      fill: none;
+    }
+  </style>
+</head>
+<body>
+
+  <main class="sim-container" aria-live="polite">
+    <!-- Top Status & Progress Bar -->
+    <header class="top-bar">
+      <div class="brand-badge">
+        <svg class="icon-svg" style="width:16px;height:16px;" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+          <polyline points="14 2 14 8 20 8"></polyline>
+          <line x1="16" y1="13" x2="8" y2="13"></line>
+          <line x1="16" y1="17" x2="8" y2="17"></line>
+        </svg>
+        Wiley LLP • Audit Sim
+      </div>
+
+      <div class="progress-steps" aria-label="Simulation progress">
+        <span id="pill-1" class="step-pill active" title="Decision 1">D1</span>
+        <span id="pill-2" class="step-pill" title="Decision 2">D2</span>
+        <span id="pill-3" class="step-pill" title="Decision 3">D3</span>
+        <span id="pill-debrief" class="step-pill" title="Final Debrief">
+          <svg class="icon-svg" style="width:15px;height:15px;stroke:currentColor;" viewBox="0 0 24 24" aria-hidden="true">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+        </span>
+      </div>
+    </header>
+
+    <!-- Case Brief Card -->
+    <section class="card" aria-labelledby="sim-title">
+      <div class="hero-header">
+        <div>
+          <div class="role-tag">
+            <svg class="icon-svg" style="width:18px;height:18px;" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+            Role: Priya Raman, Audit Senior • Client: Greenway Foods
+          </div>
+          <h1 id="sim-title">Respond to <span class="title-highlight">Priya’s Find</span></h1>
+        </div>
+      </div>
+
+      <p class="scenario-lead">
+        Wiley LLP planned to rely on <strong>Greenway Foods’</strong> revenue-cycle controls, and the audit timetable depends on it. While testing <strong>12 dispatch notes</strong>, you found that on <strong>7 of them</strong> the customer credit approval was signed by the <strong>warehouse manager</strong> — the same person who authorized the dispatch, and whose bonus is paid on shipped volume.
+      </p>
+
+      <div class="metrics-grid" role="list" aria-label="Key Audit Facts">
+        <div class="metric-box highlight-yellow" role="listitem">
+          <div class="metric-top">
+            <span class="metric-value">7 / 12</span>
+            <svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+              <line x1="12" y1="9" x2="12" y2="13"></line>
+              <line x1="12" y1="17" x2="12.01" y2="17"></line>
+            </svg>
+          </div>
+          <span class="metric-label">Exceptions found (58.3% deviation)</span>
+        </div>
+
+        <div class="metric-box" role="listitem">
+          <div class="metric-top">
+            <span class="metric-value">5%</span>
+            <svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true">
+              <circle cx="12" cy="12" r="10"></circle>
+              <circle cx="12" cy="12" r="6"></circle>
+              <circle cx="12" cy="12" r="2"></circle>
+            </svg>
+          </div>
+          <span class="metric-label">Wiley’s tolerable deviation rate</span>
+        </div>
+
+        <div class="metric-box" role="listitem">
+          <div class="metric-top">
+            <span class="metric-value">6 Wks</span>
+            <svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+              <line x1="16" y1="2" x2="16" y2="6"></line>
+              <line x1="8" y1="2" x2="8" y2="6"></line>
+              <line x1="3" y1="10" x2="21" y2="10"></line>
+            </svg>
+          </div>
+          <span class="metric-label">Credit control post was vacant</span>
+        </div>
+
+        <div class="metric-box" role="listitem">
+          <div class="metric-top">
+            <span class="metric-value">+40%</span>
+            <svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true">
+              <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+              <polyline points="17 6 23 6 23 12"></polyline>
+            </svg>
+          </div>
+          <span class="metric-label">Receivables growth (vs. +8% revenue)</span>
+        </div>
+      </div>
+
+      <div class="finding-callout">
+        <svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <div>
+          <strong>Your Task:</strong> Work through three audit decisions one at a time. Each choice reveals immediate audit feedback and unlocks the next stage.
+        </div>
+      </div>
+    </section>
+
+    <!-- Decision 1 -->
+    <section id="decision-1" class="card anim-appear" aria-labelledby="d1-heading">
+      <div class="decision-header">
+        <span class="decision-number">Decision 1 of 3</span>
+      </div>
+      <h2 id="d1-heading" class="decision-question">What kind of problem is this?</h2>
+      <p class="decision-subtext">Evaluate the nature of the control issue before planning further work.</p>
+
+      <div class="options-list" role="group" aria-label="Decision 1 options" id="options-d1"></div>
+      <div id="feedback-d1" class="hidden"></div>
+    </section>
+
+    <!-- Decision 2 -->
+    <section id="decision-2" class="card hidden" aria-labelledby="d2-heading">
+      <div class="decision-header">
+        <span class="decision-number">Decision 2 of 3</span>
+      </div>
+      <h2 id="d2-heading" class="decision-question">What do you do with the deviation rate?</h2>
+      <p class="decision-subtext">7 exceptions in 12 dispatch notes (58.3%) against a tolerable rate of 5%.</p>
+
+      <div class="options-list" role="group" aria-label="Decision 2 options" id="options-d2"></div>
+      <div id="feedback-d2" class="hidden"></div>
+    </section>
+
+    <!-- Decision 3 -->
+    <section id="decision-3" class="card hidden" aria-labelledby="d3-heading">
+      <div class="decision-header">
+        <span class="decision-number">Decision 3 of 3</span>
+      </div>
+      <h2 id="d3-heading" class="decision-question">So what changes?</h2>
+      <p class="decision-subtext">Translate your finding into an updated audit strategy for Greenway Foods.</p>
+
+      <div class="options-list" role="group" aria-label="Decision 3 options" id="options-d3"></div>
+      <div id="feedback-d3" class="hidden"></div>
+    </section>
+
+    <!-- Final Debrief -->
+    <section id="debrief-section" class="card debrief-card hidden" aria-labelledby="debrief-heading">
+      <div class="decision-header">
+        <span class="decision-number">Audit File Debrief</span>
+      </div>
+      <h2 id="debrief-heading" class="decision-question">Simulation Complete: Your Audit Trail</h2>
+
+      <div class="score-banner">
+        <div class="score-title">Decisions Aligned with Best Audit Practice</div>
+        <div id="score-pill" class="score-pill">0 / 3 Optimal</div>
+      </div>
+
+      <div class="section-label">
+        <svg class="icon-svg" style="width:18px;height:18px;" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M9 11l3 3L22 4"></path>
+          <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+        </svg>
+        Your Three Choices
+      </div>
+      <div id="recap-container" class="recap-list"></div>
+
+      <div class="section-label">
+        <svg class="icon-svg" style="width:18px;height:18px;" viewBox="0 0 24 24" aria-hidden="true">
+          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+        </svg>
+        Three Core Takeaways
+      </div>
+
+      <div class="takeaways-list">
+        <div class="takeaway-box">
+          <span class="takeaway-num">1</span>
+          <div class="takeaway-title">Design before operation</div>
+          <p class="takeaway-desc">A control where the approver isn't independent and profits from volume fails by design — testing how often it operated never arises.</p>
+        </div>
+
+        <div class="takeaway-box">
+          <span class="takeaway-num">2</span>
+          <div class="takeaway-title">A deviation rate is a conclusion, not a number to negotiate</div>
+          <p class="takeaway-desc">58% against a 5% tolerable rate settles reliance immediately. Document the rate, cause, and effect and move to substantive work.</p>
+        </div>
+
+        <div class="takeaway-box">
+          <span class="takeaway-num">3</span>
+          <div class="takeaway-title">A finding isn't finished until the plan changes</div>
+          <p class="takeaway-desc">Losing control reliance requires raising assessed risk, targeting existence and valuation, and logging fraud risk factors.</p>
+        </div>
+      </div>
+
+      <div class="module-hook">
+        <div class="module-hook-icon">
+          <svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true">
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+            <polyline points="12 5 19 12 12 19"></polyline>
+          </svg>
+        </div>
+        <div class="module-hook-text">
+          The warehouse manager’s bonus is paid on shipped volume — <span>that’s where Module 4 begins.</span>
+        </div>
+      </div>
+
+      <button type="button" class="next-btn" id="restart-btn">
+        <svg class="icon-svg" style="width:18px;height:18px;" viewBox="0 0 24 24" aria-hidden="true">
+          <polyline points="1 4 1 10 7 10"></polyline>
+          <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+        </svg>
+        Run Simulation Again
+      </button>
+    </section>
+  </main>
+
+  <script>
+    (function () {
+      const decisionsData = [
+        {
+          id: 1,
+          question: "What kind of problem is this?",
+          options: [
+            {
+              letter: "A",
+              text: "Extend the sample to 40 dispatch notes",
+              feedback: "Answers a question that doesn't matter yet; a bigger sample only measures how often a broken control got applied.",
+              isOptimal: false
+            },
+            {
+              letter: "B",
+              text: "Conclude the control is badly designed — the approver isn't independent of dispatch and profits from the volume he approves",
+              feedback: "A control that fails even when performed perfectly is a design deficiency, so operating effectiveness never arises.",
+              isOptimal: true
+            },
+            {
+              letter: "C",
+              text: "Ask whether the warehouse manager was formally authorized during the vacancy",
+              feedback: "Worth knowing, resolves nothing: authorization changes the paperwork, not the conflict.",
+              isOptimal: false
+            }
+          ]
+        },
+        {
+          id: 2,
+          question: "What do you do with the deviation rate? (7 in 12, tolerable rate 5%)",
+          options: [
+            {
+              letter: "A",
+              text: "Extend the sample, the rate may come down",
+              feedback: "58% against 5%; no realistic extension gets there, and it burns the hours you need for substantive work.",
+              isOptimal: false
+            },
+            {
+              letter: "B",
+              text: "Conclude the control can't be relied on; document the rate, the cause, and the effect",
+              feedback: "The evidence already settles it, and the conclusion creates the next work.",
+              isOptimal: true
+            },
+            {
+              letter: "C",
+              text: "Ask management to retrospectively approve the seven",
+              feedback: "Never. A signature applied today says nothing about whether credit was assessed before the goods shipped, and asking for it edges toward requesting fabricated evidence.",
+              isOptimal: false
+            }
+          ]
+        },
+        {
+          id: 3,
+          question: "So what changes?",
+          options: [
+            {
+              letter: "A",
+              text: "Report to those charged with governance and continue as planned",
+              feedback: "Required, but not a response; the plan assumed reliance you no longer have.",
+              isOptimal: false
+            },
+            {
+              letter: "B",
+              text: "Test more receivables, leave the assessed risk unchanged",
+              feedback: "Right direction anchored to nothing, and probably still testing the wrong direction.",
+              isOptimal: false
+            },
+            {
+              letter: "C",
+              text: "Raise the assessed risk on receivables, expand substantive testing toward existence and valuation, and log the volume bonus as a fraud risk factor",
+              feedback: "One finding moves the risk assessment, changes the response, and puts an incentive on the record.",
+              isOptimal: true
+            }
+          ]
+        }
+      ];
+
+      // In-memory state only (no localStorage)
+      const userChoices = {};
+
+      function renderAllOptions() {
+        decisionsData.forEach((decision) => {
+          const container = document.getElementById("options-d" + decision.id);
+          container.innerHTML = "";
+
+          decision.options.forEach((opt, idx) => {
+            const btn = document.createElement("button");
+            btn.type = "button";
+            btn.className = "option-btn";
+            btn.setAttribute("data-decision", decision.id);
+            btn.setAttribute("data-index", idx);
+
+            btn.innerHTML = `
+              <span class="option-letter">${opt.letter}</span>
+              <span class="option-text">${opt.text}</span>
+            `;
+
+            btn.addEventListener("click", function () {
+              handleOptionSelect(decision.id, idx, btn);
+            });
+
+            container.appendChild(btn);
+          });
+        });
+      }
+
+      function handleOptionSelect(decisionId, optionIndex, clickedBtn) {
+        if (userChoices[decisionId] !== undefined) return;
+
+        const decision = decisionsData.find((d) => d.id === decisionId);
+        const chosen = decision.options[optionIndex];
+        userChoices[decisionId] = chosen;
+
+        const container = document.getElementById("options-d" + decisionId);
+        const allBtns = container.querySelectorAll(".option-btn");
+
+        allBtns.forEach((btn, idx) => {
+          btn.disabled = true;
+          if (idx === optionIndex) {
+            if (chosen.isOptimal) {
+              btn.classList.add("selected-optimal", "anim-pop");
+            } else {
+              btn.classList.add("selected-suboptimal", "anim-shake");
+            }
+          } else {
+            btn.classList.add("dimmed");
+          }
+        });
+
+        // Update top progress pill
+        const currentPill = document.getElementById("pill-" + decisionId);
+        currentPill.classList.remove("active");
+        currentPill.classList.add("completed");
+
+        // Render feedback panel
+        const feedbackEl = document.getElementById("feedback-d" + decisionId);
+        feedbackEl.className = "feedback-panel " + (chosen.isOptimal ? "is-optimal" : "is-suboptimal");
+
+        const nextLabel = decisionId < 3 ? "Continue to Decision " + (decisionId + 1) : "View Final Audit Debrief";
+
+        const badgeIcon = chosen.isOptimal
+          ? `<svg class="icon-svg" style="width:16px;height:16px;" viewBox="0 0 24 24" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg> ✅ Best Audit Response`
+          : `<svg class="icon-svg" style="width:16px;height:16px;" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg> Audit Review Note`;
+
+        feedbackEl.innerHTML = `
+          <div class="feedback-badge-row">
+            <span class="status-pill ${chosen.isOptimal ? "pill-lime" : ""}">
+              ${badgeIcon}
+            </span>
+            <span>Option ${chosen.letter} Selected</span>
+          </div>
+          <p class="feedback-body">${chosen.feedback}</p>
+          <button type="button" class="next-btn" id="next-from-d${decisionId}">
+            ${nextLabel}
+            <svg class="icon-svg" style="width:18px;height:18px;" viewBox="0 0 24 24" aria-hidden="true">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+          </button>
+        `;
+
+        document.getElementById("next-from-d" + decisionId).addEventListener("click", function () {
+          this.classList.add("hidden");
+          unlockNextStep(decisionId);
+        });
+      }
+
+      function unlockNextStep(completedDecisionId) {
+        if (completedDecisionId < 3) {
+          const nextId = completedDecisionId + 1;
+          const nextCard = document.getElementById("decision-" + nextId);
+          const nextPill = document.getElementById("pill-" + nextId);
+
+          nextPill.classList.add("active");
+          nextCard.classList.remove("hidden");
+          nextCard.classList.add("anim-appear");
+          nextCard.scrollIntoView({ behavior: "smooth", block: "start" });
+        } else {
+          renderDebrief();
+          const debriefPill = document.getElementById("pill-debrief");
+          debriefPill.classList.add("active", "completed");
+
+          const debriefCard = document.getElementById("debrief-section");
+          debriefCard.classList.remove("hidden");
+          debriefCard.classList.add("anim-appear");
+          debriefCard.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      }
+
+      function renderDebrief() {
+        const recapContainer = document.getElementById("recap-container");
+        recapContainer.innerHTML = "";
+
+        let optimalCount = 0;
+
+        decisionsData.forEach((decision) => {
+          const pick = userChoices[decision.id];
+          const bestOption = decision.options.find((o) => o.isOptimal);
+          if (pick && pick.isOptimal) optimalCount++;
+
+          const item = document.createElement("div");
+          item.className = "recap-item " + (pick.isOptimal ? "recap-optimal" : "");
+
+          let betterNoteHTML = "";
+          if (!pick.isOptimal && bestOption) {
+            betterNoteHTML = `
+              <div class="recap-better-note">
+                ✅ <strong>Strongest choice (${bestOption.letter}):</strong> ${bestOption.text} — <em>${bestOption.feedback}</em>
+              </div>
+            `;
+          }
+
+          item.innerHTML = `
+            <div class="recap-item-head">
+              <span>Decision ${decision.id}: ${decision.question}</span>
+              <span>${pick.isOptimal ? "✅ Optimal Choice" : "Option " + pick.letter}</span>
+            </div>
+            <div class="recap-choice">You chose ${pick.letter}: “${pick.text}”</div>
+            <div class="recap-feedback">${pick.feedback}</div>
+            ${betterNoteHTML}
+          `;
+
+          recapContainer.appendChild(item);
+        });
+
+        document.getElementById("score-pill").textContent = optimalCount + " / 3 Optimal";
+      }
+
+      function resetSimulation() {
+        Object.keys(userChoices).forEach((k) => delete userChoices[k]);
+
+        // Reset progress pills
+        ["1", "2", "3", "debrief"].forEach((id, idx) => {
+          const pill = document.getElementById("pill-" + id);
+          pill.classList.remove("active", "completed");
+          if (idx === 0) pill.classList.add("active");
+        });
+
+        // Reset feedback boxes & cards
+        [1, 2, 3].forEach((id) => {
+          const fb = document.getElementById("feedback-d" + id);
+          fb.className = "hidden";
+          fb.innerHTML = "";
+          if (id > 1) {
+            document.getElementById("decision-" + id).classList.add("hidden");
+          }
+        });
+
+        document.getElementById("debrief-section").classList.add("hidden");
+        renderAllOptions();
+
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+
+      document.getElementById("restart-btn").addEventListener("click", resetSimulation);
+
+      // Initialize
+      renderAllOptions();
+    })();
+  </script>
+</body>
+</html>
